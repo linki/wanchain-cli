@@ -3,7 +3,6 @@ FROM golang:1.13-alpine3.10 as builder
 
 ENV CGO_ENABLED 0
 ENV GO111MODULE on
-# RUN apk --no-cache add git
 WORKDIR /go/src/github.com/linki/wanchain-cli
 COPY . .
 RUN go build -o /bin/wanchain-cli -v -ldflags "-w -s"
