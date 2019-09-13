@@ -34,7 +34,7 @@ You can use:
 * `--rpc` to change the RPC endpoint
 * `--from-epoch-id` to change the starting Epoch ID
 * `--to-epoch-id` to change the final Epoch ID
-* `-validator-address` to filter by a particular validator
+* `--validator-address` to filter by a particular validator
 
 ```console
 $ wanchain-cli --rpc https://mywanwallet.nl/api activity \
