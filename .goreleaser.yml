@@ -1,0 +1,20 @@
+builds:
+- env:
+  - CGO_ENABLED=0
+  ldflags:
+  - -s -w -X github.com/linki/wanchain-cli/cmd.version=v{{.Version}}
+  goos:
+  - darwin
+  - linux
+  - freebsd
+  - windows
+  goarch:
+  - amd64
+  - arm
+  ignore:
+  - goos: freebsd
+    goarch: arm
+archives:
+- format_overrides:
+  - goos: windows
+    format: zip
