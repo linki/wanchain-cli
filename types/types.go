@@ -9,3 +9,11 @@ type Activity struct {
 	SLBlocks   []uint64
 	SLTLeader  []string
 }
+
+// Incentive is the partial type returned by pos_getEpochIncentivePayDetail
+type Incentive struct {
+	Address         string
+	Incentive       string
+	StakeInFromAddr string
+	Type            string
+}
