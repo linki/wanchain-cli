@@ -10,10 +10,16 @@ type Activity struct {
 	SLTLeader  []string
 }
 
-// Incentive is the partial type returned by pos_getEpochIncentivePayDetail
-type Incentive struct {
-	Address         string
-	Incentive       string
+// DelegatorIncentive is the partial type returned by pos_getEpochIncentivePayDetail
+type DelegatorIncentive struct {
+	Address   string
+	Incentive string
+	Type      string
+}
+
+// ValidatorIncentive is the type returned by pos_getEpochIncentivePayDetail
+type ValidatorIncentive struct {
+	DelegatorIncentive
+	Delegators      []DelegatorIncentive
 	StakeInFromAddr string
-	Type            string
 }

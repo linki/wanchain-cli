@@ -24,6 +24,7 @@ var (
 	}
 	incentivesParams = struct {
 		validatorAddress string
+		delegatorAddress string
 		fromEpochID      uint64
 		toEpochID        uint64
 	}{}
@@ -31,6 +32,7 @@ var (
 
 func init() {
 	incentivesCmd.PersistentFlags().StringVar(&incentivesParams.validatorAddress, "validator-address", "", "Address of the validator by which to filter")
+	incentivesCmd.PersistentFlags().StringVar(&incentivesParams.delegatorAddress, "delegator-address", "", "Address of the delegator by which to filter")
 	incentivesCmd.PersistentFlags().Uint64Var(&incentivesParams.fromEpochID, "from-epoch-id", firstEpochID, "Starting Epoch ID to query for")
 	incentivesCmd.PersistentFlags().Uint64Var(&incentivesParams.toEpochID, "to-epoch-id", 0, "Last Epoch ID to query for")
 
@@ -57,7 +59,7 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 	t.SetAlign([]text.Align{text.AlignRight, text.AlignLeft, text.AlignLeft, text.AlignRight})
 
 	for e := incentivesParams.fromEpochID; e <= incentivesParams.toEpochID; e++ {
-		var incentives []types.Incentive
+		var incentives []types.ValidatorIncentive
 		if err := client.CallContext(context.Background(), &incentives, "pos_getEpochIncentivePayDetail", e); err != nil {
 			log.Fatal(err)
 		}
@@ -65,9 +67,17 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 			spew.Dump(incentives)
 		}
 
-		for _, incentive := range incentives {
-			if incentivesParams.validatorAddress == "" || common.HexToAddress(incentive.Address) == common.HexToAddress(incentivesParams.validatorAddress) {
-				t.AppendRow(table.Row{e, incentive.Type, incentive.Address, util.WeiToEth(hexutil.MustDecodeBig(incentive.Incentive))})
+		for _, validatorIncentive := range incentives {
+			if (incentivesParams.validatorAddress == "" && incentivesParams.delegatorAddress == "") || common.HexToAddress(validatorIncentive.Address) == common.HexToAddress(incentivesParams.validatorAddress) {
+				t.AppendRow(table.Row{e, validatorIncentive.Type, validatorIncentive.Address, util.WeiToEth(hexutil.MustDecodeBig(validatorIncentive.Incentive))})
+			}
+		}
+
+		for _, validatorIncentive := range incentives {
+			for _, delegatorIncentive := range validatorIncentive.Delegators {
+				if (incentivesParams.validatorAddress == "" && incentivesParams.delegatorAddress == "") || common.HexToAddress(validatorIncentive.Address) == common.HexToAddress(incentivesParams.validatorAddress) || common.HexToAddress(delegatorIncentive.Address) == common.HexToAddress(incentivesParams.delegatorAddress) {
+					t.AppendRow(table.Row{e, delegatorIncentive.Type, delegatorIncentive.Address, util.WeiToEth(hexutil.MustDecodeBig(delegatorIncentive.Incentive))})
+				}
 			}
 		}
 	}
