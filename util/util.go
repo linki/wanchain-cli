@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -14,6 +15,14 @@ func GetCurrentEpochID(ctx context.Context, client *rpc.Client) (uint64, error) 
 		return 0, err
 	}
 	return epochID, nil
+}
+
+func GetCurrentBlockHeight(ctx context.Context, client *rpc.Client) (uint64, error) {
+	var blockHeight hexutil.Uint64
+	if err := client.CallContext(ctx, &blockHeight, "eth_blockNumber"); err != nil {
+		return 0, err
+	}
+	return hexutil.MustDecodeUint64(blockHeight.String()), nil
 }
 
 func WeiToEth(eth *big.Int) *big.Float {
