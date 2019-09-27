@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"log"
 
 	"github.com/davecgh/go-spew/spew"
@@ -11,9 +10,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/linki/wanchain-cli/types"
+	"github.com/linki/wanchain-cli/client"
 	"github.com/linki/wanchain-cli/util"
 )
 
@@ -40,14 +38,14 @@ func init() {
 }
 
 func listIncentives(cmd *cobra.Command, _ []string) {
-	client, err := rpc.DialContext(context.Background(), rpcURL)
+	client, err := client.NewClient(rpcURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer client.Close()
 
 	if incentivesParams.toEpochID == 0 {
-		incentivesParams.toEpochID, err = util.GetCurrentEpochID(context.Background(), client)
+		incentivesParams.toEpochID, err = client.GetCurrentEpochID()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -59,8 +57,8 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 	t.SetAlign([]text.Align{text.AlignRight, text.AlignLeft, text.AlignLeft, text.AlignRight})
 
 	for e := incentivesParams.fromEpochID; e <= incentivesParams.toEpochID; e++ {
-		var incentives []types.ValidatorIncentive
-		if err := client.CallContext(context.Background(), &incentives, "pos_getEpochIncentivePayDetail", e); err != nil {
+		incentives, err := client.GetIncentives(e)
+		if err != nil {
 			log.Fatal(err)
 		}
 		if debug {

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"log"
 
 	"github.com/davecgh/go-spew/spew"
@@ -9,10 +8,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/linki/wanchain-cli/types"
-	"github.com/linki/wanchain-cli/util"
+	"github.com/linki/wanchain-cli/client"
 )
 
 var (
@@ -36,14 +33,14 @@ func init() {
 }
 
 func listActivity(cmd *cobra.Command, _ []string) {
-	client, err := rpc.DialContext(context.Background(), rpcURL)
+	client, err := client.NewClient(rpcURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer client.Close()
 
 	if activityParams.toEpochID == 0 {
-		activityParams.toEpochID, err = util.GetCurrentEpochID(context.Background(), client)
+		activityParams.toEpochID, err = client.GetCurrentEpochID()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -54,8 +51,8 @@ func listActivity(cmd *cobra.Command, _ []string) {
 	t.AppendHeader(table.Row{"Epoch ID", "Role", "Address", "Active", "Blocks"})
 
 	for e := activityParams.fromEpochID; e <= activityParams.toEpochID; e++ {
-		var activity types.Activity
-		if err := client.CallContext(context.Background(), &activity, "pos_getActivity", e); err != nil {
+		activity, err := client.GetActivity(e)
+		if err != nil {
 			log.Fatal(err)
 		}
 		if debug {

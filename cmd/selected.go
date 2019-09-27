@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"log"
 
 	"github.com/davecgh/go-spew/spew"
@@ -9,9 +8,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/linki/wanchain-cli/util"
+	"github.com/linki/wanchain-cli/client"
 )
 
 var (
@@ -33,14 +31,14 @@ func init() {
 }
 
 func listSelected(cmd *cobra.Command, _ []string) {
-	client, err := rpc.DialContext(context.Background(), rpcURL)
+	client, err := client.NewClient(rpcURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer client.Close()
 
 	if selectedParams.epochID == 0 {
-		selectedParams.epochID, err = util.GetCurrentEpochID(context.Background(), client)
+		selectedParams.epochID, err = client.GetCurrentEpochID()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -51,16 +49,16 @@ func listSelected(cmd *cobra.Command, _ []string) {
 	t.SetOutputMirror(cmd.OutOrStdout())
 	t.AppendHeader(table.Row{"Epoch ID", "Role", "Address"})
 
-	var EPAddrs []string
-	if err := client.CallContext(context.Background(), &EPAddrs, "pos_getEpochLeadersAddrByEpochID", selectedParams.epochID); err != nil {
+	EPAddrs, err := client.GetEpochLeaders(selectedParams.epochID)
+	if err != nil {
 		log.Fatal(err)
 	}
 	if debug {
 		spew.Dump(EPAddrs)
 	}
 
-	var RPAddrs []string
-	if err := client.CallContext(context.Background(), &RPAddrs, "pos_getRandomProposersAddrByEpochID", selectedParams.epochID); err != nil {
+	RPAddrs, err := client.GetRandomProposers(selectedParams.epochID)
+	if err != nil {
 		log.Fatal(err)
 	}
 	if debug {

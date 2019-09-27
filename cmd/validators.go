@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -11,9 +10,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/linki/wanchain-cli/types"
+	"github.com/linki/wanchain-cli/client"
 	"github.com/linki/wanchain-cli/util"
 )
 
@@ -36,21 +34,21 @@ func init() {
 }
 
 func listValidators(cmd *cobra.Command, _ []string) {
-	client, err := rpc.DialContext(context.Background(), rpcURL)
+	client, err := client.NewClient(rpcURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer client.Close()
 
 	if validatorsParams.blockHeight == 0 {
-		validatorsParams.blockHeight, err = util.GetCurrentBlockHeight(context.Background(), client)
+		validatorsParams.blockHeight, err = client.GetCurrentBlockHeight()
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	var validators []types.Validator
-	if err := client.CallContext(context.Background(), &validators, "pos_getStakerInfo", validatorsParams.blockHeight); err != nil {
+	validators, err := client.GetValidators(validatorsParams.blockHeight)
+	if err != nil {
 		log.Fatal(err)
 	}
 	if debug {
