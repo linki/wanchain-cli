@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	firstEpochID uint64 = 18143
+	defaultEpochRange = 3
 )
 
 var (

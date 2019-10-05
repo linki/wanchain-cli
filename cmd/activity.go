@@ -26,7 +26,7 @@ var (
 
 func init() {
 	activityCmd.PersistentFlags().StringVar(&activityParams.validatorAddress, "validator-address", "", "Address of the validator by which to filter")
-	activityCmd.PersistentFlags().Uint64Var(&activityParams.fromEpochID, "from-epoch-id", firstEpochID, "Starting Epoch ID to query for")
+	activityCmd.PersistentFlags().Uint64Var(&activityParams.fromEpochID, "from-epoch-id", 0, "Starting Epoch ID to query for, defaults to the last three epochs")
 	activityCmd.PersistentFlags().Uint64Var(&activityParams.toEpochID, "to-epoch-id", 0, "Last Epoch ID to query for")
 
 	rootCmd.AddCommand(activityCmd)
@@ -44,6 +44,10 @@ func listActivity(cmd *cobra.Command, _ []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	if activityParams.fromEpochID == 0 {
+		activityParams.fromEpochID = activityParams.toEpochID - defaultEpochRange
 	}
 
 	t := table.NewWriter()

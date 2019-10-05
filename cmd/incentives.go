@@ -31,7 +31,7 @@ var (
 func init() {
 	incentivesCmd.PersistentFlags().StringVar(&incentivesParams.validatorAddress, "validator-address", "", "Address of the validator by which to filter")
 	incentivesCmd.PersistentFlags().StringVar(&incentivesParams.delegatorAddress, "delegator-address", "", "Address of the delegator by which to filter")
-	incentivesCmd.PersistentFlags().Uint64Var(&incentivesParams.fromEpochID, "from-epoch-id", firstEpochID, "Starting Epoch ID to query for")
+	incentivesCmd.PersistentFlags().Uint64Var(&incentivesParams.fromEpochID, "from-epoch-id", 0, "Starting Epoch ID to query for, defaults to the last three epochs")
 	incentivesCmd.PersistentFlags().Uint64Var(&incentivesParams.toEpochID, "to-epoch-id", 0, "Last Epoch ID to query for")
 
 	rootCmd.AddCommand(incentivesCmd)
@@ -49,6 +49,10 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	if incentivesParams.fromEpochID == 0 {
+		incentivesParams.fromEpochID = incentivesParams.toEpochID - defaultEpochRange
 	}
 
 	t := table.NewWriter()
