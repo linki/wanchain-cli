@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"math/big"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/jedib0t/go-pretty/table"
@@ -12,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
 	"github.com/linki/wanchain-cli/client"
+	"github.com/linki/wanchain-cli/types"
 	"github.com/linki/wanchain-cli/util"
 )
 
@@ -55,6 +57,8 @@ func listValidators(cmd *cobra.Command, _ []string) {
 		spew.Dump(validators)
 	}
 
+	totalPower := util.PowerWeight(validators)
+
 	for _, validator := range validators {
 		t := table.NewWriter()
 		t.SetOutputMirror(cmd.OutOrStdout())
@@ -63,6 +67,8 @@ func listValidators(cmd *cobra.Command, _ []string) {
 			if debug {
 				spew.Dump(validator)
 			}
+
+			validatorPower := util.PowerWeight([]types.Validator{validator})
 
 			t.AppendRows([]table.Row{
 				{"Address", validator.Address.Hex()},
@@ -79,6 +85,7 @@ func listValidators(cmd *cobra.Command, _ []string) {
 				{"# Partners", len(validator.Partners)},
 				{"MaxFeeRate", fmt.Sprintf("%.2f%%", float64(validator.MaxFeeRate)/100)},
 				{"FeeRateChangedEpoch", validator.FeeRateChangedEpoch},
+				{"PowerWeight", fmt.Sprintf("%.2f%%", big.NewFloat(0).Mul(big.NewFloat(100), big.NewFloat(0).Quo(big.NewFloat(0).SetInt(validatorPower), big.NewFloat(0).SetInt(totalPower))))},
 			})
 		}
 
