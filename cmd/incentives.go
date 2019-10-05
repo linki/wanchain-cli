@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/davecgh/go-spew/spew"
@@ -71,14 +72,14 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 
 		for _, validatorIncentive := range incentives {
 			if (incentivesParams.validatorAddress == "" && incentivesParams.delegatorAddress == "") || common.HexToAddress(validatorIncentive.Address) == common.HexToAddress(incentivesParams.validatorAddress) {
-				t.AppendRow(table.Row{e, validatorIncentive.Type, validatorIncentive.Address, util.WeiToEth(hexutil.MustDecodeBig(validatorIncentive.Incentive))})
+				t.AppendRow(table.Row{e, validatorIncentive.Type, validatorIncentive.Address, fmt.Sprintf("%.8f", util.WeiToEth(hexutil.MustDecodeBig(validatorIncentive.Incentive)))})
 			}
 		}
 
 		for _, validatorIncentive := range incentives {
 			for _, delegatorIncentive := range validatorIncentive.Delegators {
 				if (incentivesParams.validatorAddress == "" && incentivesParams.delegatorAddress == "") || common.HexToAddress(validatorIncentive.Address) == common.HexToAddress(incentivesParams.validatorAddress) || common.HexToAddress(delegatorIncentive.Address) == common.HexToAddress(incentivesParams.delegatorAddress) {
-					t.AppendRow(table.Row{e, delegatorIncentive.Type, delegatorIncentive.Address, util.WeiToEth(hexutil.MustDecodeBig(delegatorIncentive.Incentive))})
+					t.AppendRow(table.Row{e, delegatorIncentive.Type, delegatorIncentive.Address, fmt.Sprintf("%.8f", util.WeiToEth(hexutil.MustDecodeBig(delegatorIncentive.Incentive)))})
 				}
 			}
 		}
