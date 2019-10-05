@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/linki/wanchain-cli/client"
+	"github.com/linki/wanchain-cli/util"
 )
 
 var (
@@ -77,5 +78,5 @@ func listSelected(cmd *cobra.Command, _ []string) {
 		}
 	}
 
-	t.Render()
+	util.RenderTable(t, format)
 }

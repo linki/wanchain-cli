@@ -82,6 +82,6 @@ func listValidators(cmd *cobra.Command, _ []string) {
 			})
 		}
 
-		t.Render()
+		util.RenderTable(t, format)
 	}
 }
