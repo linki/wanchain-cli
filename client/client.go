@@ -29,6 +29,10 @@ func (c *Client) GetCurrentEpochID() (epochID uint64, _ error) {
 	return epochID, c.client.Call(&epochID, "pos_getEpochID")
 }
 
+func (c *Client) GetCurrentSlotID() (slotID uint64, _ error) {
+	return slotID, c.client.Call(&slotID, "pos_getSlotID")
+}
+
 func (c *Client) GetActivity(epochID uint64) (activity types.Activity, _ error) {
 	return activity, c.client.Call(&activity, "pos_getActivity", epochID)
 }
