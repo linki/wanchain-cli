@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"math/big"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/jedib0t/go-pretty/table"
@@ -26,6 +27,7 @@ var (
 		delegatorAddress string
 		fromEpochID      uint64
 		toEpochID        uint64
+		filterType       string
 	}{}
 )
 
@@ -34,6 +36,7 @@ func init() {
 	incentivesCmd.PersistentFlags().StringVar(&incentivesParams.delegatorAddress, "delegator-address", "", "Address of the delegator by which to filter")
 	incentivesCmd.PersistentFlags().Uint64Var(&incentivesParams.fromEpochID, "from-epoch-id", 0, "Starting Epoch ID to query for, defaults to the last three epochs")
 	incentivesCmd.PersistentFlags().Uint64Var(&incentivesParams.toEpochID, "to-epoch-id", 0, "Last Epoch ID to query for")
+	incentivesCmd.PersistentFlags().StringVar(&incentivesParams.filterType, "filter-type", "", "Filter by incentive type, either validator or delegator")
 
 	rootCmd.AddCommand(incentivesCmd)
 }
@@ -56,6 +59,9 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 		incentivesParams.fromEpochID = incentivesParams.toEpochID - defaultEpochRange
 	}
 
+	sumValidator := big.NewInt(0)
+	sumDelegator := big.NewInt(0)
+
 	t := table.NewWriter()
 	t.SetOutputMirror(cmd.OutOrStdout())
 	t.AppendHeader(table.Row{"Epoch ID", "Type", "Address", "Incentive"})
@@ -70,20 +76,29 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 			spew.Dump(incentives)
 		}
 
-		for _, validatorIncentive := range incentives {
-			if (incentivesParams.validatorAddress == "" && incentivesParams.delegatorAddress == "") || common.HexToAddress(validatorIncentive.Address) == common.HexToAddress(incentivesParams.validatorAddress) {
-				t.AppendRow(table.Row{e, validatorIncentive.Type, validatorIncentive.Address, fmt.Sprintf("%.8f", util.WeiToEth(hexutil.MustDecodeBig(validatorIncentive.Incentive)))})
+		if incentivesParams.filterType == "" || incentivesParams.filterType == "validator" {
+			for _, validatorIncentive := range incentives {
+				if (incentivesParams.validatorAddress == "" && incentivesParams.delegatorAddress == "") || common.HexToAddress(validatorIncentive.Address) == common.HexToAddress(incentivesParams.validatorAddress) {
+					t.AppendRow(table.Row{e, validatorIncentive.Type, validatorIncentive.Address, fmt.Sprintf("%.8f", util.WeiToEth(hexutil.MustDecodeBig(validatorIncentive.Incentive)))})
+					sumValidator.Add(sumValidator, hexutil.MustDecodeBig(validatorIncentive.Incentive))
+				}
 			}
 		}
 
-		for _, validatorIncentive := range incentives {
-			for _, delegatorIncentive := range validatorIncentive.Delegators {
-				if (incentivesParams.validatorAddress == "" && incentivesParams.delegatorAddress == "") || common.HexToAddress(validatorIncentive.Address) == common.HexToAddress(incentivesParams.validatorAddress) || common.HexToAddress(delegatorIncentive.Address) == common.HexToAddress(incentivesParams.delegatorAddress) {
-					t.AppendRow(table.Row{e, delegatorIncentive.Type, delegatorIncentive.Address, fmt.Sprintf("%.8f", util.WeiToEth(hexutil.MustDecodeBig(delegatorIncentive.Incentive)))})
+		if incentivesParams.filterType == "" || incentivesParams.filterType == "delegator" {
+			for _, validatorIncentive := range incentives {
+				for _, delegatorIncentive := range validatorIncentive.Delegators {
+					if (incentivesParams.validatorAddress == "" && incentivesParams.delegatorAddress == "") || common.HexToAddress(validatorIncentive.Address) == common.HexToAddress(incentivesParams.validatorAddress) || common.HexToAddress(delegatorIncentive.Address) == common.HexToAddress(incentivesParams.delegatorAddress) {
+						t.AppendRow(table.Row{e, delegatorIncentive.Type, delegatorIncentive.Address, fmt.Sprintf("%.8f", util.WeiToEth(hexutil.MustDecodeBig(delegatorIncentive.Incentive)))})
+						sumDelegator.Add(sumDelegator, hexutil.MustDecodeBig(delegatorIncentive.Incentive))
+					}
 				}
 			}
 		}
 	}
+
+	t.AppendFooter(table.Row{"", "validator", "", fmt.Sprintf("%.8f", util.WeiToEth(sumValidator))})
+	t.AppendFooter(table.Row{"", "delegator", "", fmt.Sprintf("%.8f", util.WeiToEth(sumDelegator))})
 
 	util.RenderTable(t, format)
 }
