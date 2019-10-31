@@ -1,7 +1,10 @@
 package types
 
 import (
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // Activity is the partial type returned by pos_getActivity
@@ -46,12 +49,48 @@ type Validator struct {
 	FeeRateChangedEpoch uint64
 }
 
+func (v *Validator) Stake() *big.Int {
+	power := hexutil.MustDecodeBig(v.VotingPower)
+
+	for _, client := range v.Clients {
+		power = power.Add(power, client.Stake())
+	}
+
+	for _, partner := range v.Partners {
+		power = power.Add(power, partner.Stake())
+	}
+
+	return power
+}
+
+func (v *Validator) TotalAmount() *big.Int {
+	amount := hexutil.MustDecodeBig(v.Amount)
+
+	for _, client := range v.Clients {
+		amount = amount.Add(amount, client.TotalAmount())
+	}
+
+	for _, partner := range v.Partners {
+		amount = amount.Add(amount, partner.TotalAmount())
+	}
+
+	return amount
+}
+
 // Client is the type under Clients returned by pos_getStakerInfo
 type Client struct {
 	Address     common.Address
 	Amount      string
 	VotingPower string
 	QuitEpoch   uint64
+}
+
+func (c *Client) Stake() *big.Int {
+	return hexutil.MustDecodeBig(c.VotingPower)
+}
+
+func (c *Client) TotalAmount() *big.Int {
+	return hexutil.MustDecodeBig(c.Amount)
 }
 
 // Partner is the type under Partners returned by pos_getStakerInfo
@@ -62,4 +101,12 @@ type Partner struct {
 	Renewal      bool
 	LockEpochs   uint64
 	StakingEpoch uint64
+}
+
+func (p *Partner) Stake() *big.Int {
+	return hexutil.MustDecodeBig(p.VotingPower)
+}
+
+func (p *Partner) TotalAmount() *big.Int {
+	return hexutil.MustDecodeBig(p.Amount)
 }
