@@ -17,7 +17,6 @@ matrix:
   - go: tip
 
 install:
-- go get github.com/mfridman/tparse
 - go get github.com/mattn/goveralls
 - go get github.com/lawrencewoodman/roveralls
 
