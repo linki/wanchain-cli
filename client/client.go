@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/wanchain/go-wanchain/common/hexutil"
+	"github.com/wanchain/go-wanchain/rpc"
 
 	"github.com/linki/wanchain-cli/types"
 )

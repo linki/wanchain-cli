@@ -3,8 +3,8 @@ package types
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/wanchain/go-wanchain/common"
+	"github.com/wanchain/go-wanchain/common/hexutil"
 )
 
 // Activity is the partial type returned by pos_getActivity

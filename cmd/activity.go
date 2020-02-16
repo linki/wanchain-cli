@@ -7,7 +7,7 @@ import (
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/wanchain/go-wanchain/common"
 
 	"github.com/linki/wanchain-cli/client"
 	"github.com/linki/wanchain-cli/util"

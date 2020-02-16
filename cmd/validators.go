@@ -9,8 +9,8 @@ import (
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/wanchain/go-wanchain/common"
+	"github.com/wanchain/go-wanchain/common/hexutil"
 
 	"github.com/linki/wanchain-cli/client"
 	"github.com/linki/wanchain-cli/types"
