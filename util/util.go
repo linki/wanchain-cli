@@ -14,7 +14,12 @@ func WeiToEth(eth *big.Int) *big.Float {
 }
 
 func Weight(value, total *big.Int) *big.Float {
-	return big.NewFloat(0).Mul(big.NewFloat(100), big.NewFloat(0).Quo(big.NewFloat(0).SetInt(value), big.NewFloat(0).SetInt(total)))
+	// return 0 if total is 0 to avoid division by zero.
+	if total.Cmp(big.NewInt(0)) == 0 {
+		return big.NewFloat(0)
+	}
+
+	return new(big.Float).Mul(big.NewFloat(100), new(big.Float).Quo(new(big.Float).SetInt(value), new(big.Float).SetInt(total)))
 }
 
 func PowerWeight(validators []types.Validator) *big.Int {
