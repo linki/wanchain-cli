@@ -5,6 +5,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/jedib0t/go-pretty/table"
+	"github.com/jedib0t/go-pretty/text"
 	"github.com/spf13/cobra"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -54,6 +55,7 @@ func listActivity(cmd *cobra.Command, _ []string) {
 	t := table.NewWriter()
 	t.SetOutputMirror(cmd.OutOrStdout())
 	t.AppendHeader(table.Row{"Epoch ID", "Role", "Address", "Active", "Blocks"})
+	t.SetAlign([]text.Align{text.AlignRight, text.AlignLeft, text.AlignLeft, text.AlignLeft, text.AlignRight})
 
 	for e := activityParams.fromEpochID; e <= activityParams.toEpochID; e++ {
 		activity, err := client.GetActivity(e)

@@ -97,6 +97,7 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 		}
 	}
 
+	t.SetAlignFooter([]text.Align{text.AlignRight, text.AlignLeft, text.AlignLeft, text.AlignRight})
 	t.AppendFooter(table.Row{"", "validator", "", fmt.Sprintf("%.8f", util.WeiToEth(sumValidator))})
 	t.AppendFooter(table.Row{"", "delegator", "", fmt.Sprintf("%.8f", util.WeiToEth(sumDelegator))})
 
