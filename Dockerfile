@@ -1,17 +1,16 @@
 # builder image
-FROM golang:1.13-alpine3.10 as builder
+FROM golang:1.13-alpine3.11 as builder
 
 ENV CGO_ENABLED 0
-ENV GO111MODULE on
 RUN apk --no-cache add git
-WORKDIR /go/src/github.com/linki/wanchain-cli
-COPY . .
+WORKDIR /wanchain-cli
+COPY . /wanchain-cli
 RUN go build -o /bin/wanchain-cli -v \
   -ldflags "-X github.com/linki/wanchain-cli/cmd.version=$(git describe --tags --always --dirty) -w -s"
 RUN /bin/wanchain-cli version
 
 # final image
-FROM alpine:3.10
+FROM alpine:3.11
 
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /bin/wanchain-cli /bin/wanchain-cli
