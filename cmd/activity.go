@@ -21,15 +21,15 @@ var (
 	}
 	activityParams = struct {
 		validatorAddress string
-		fromEpochID      uint64
-		toEpochID        uint64
+		fromEpochID      int64
+		toEpochID        int64
 	}{}
 )
 
 func init() {
 	activityCmd.PersistentFlags().StringVar(&activityParams.validatorAddress, "validator-address", "", "Address of the validator by which to filter")
-	activityCmd.PersistentFlags().Uint64Var(&activityParams.fromEpochID, "from-epoch-id", 0, "Starting Epoch ID to query for, defaults to the last three epochs")
-	activityCmd.PersistentFlags().Uint64Var(&activityParams.toEpochID, "to-epoch-id", 0, "Last Epoch ID to query for")
+	activityCmd.PersistentFlags().Int64Var(&activityParams.fromEpochID, "from-epoch-id", defaultEpochRange, "Starting Epoch ID to query for, defaults to the last three epochs before --to-epoch-id")
+	activityCmd.PersistentFlags().Int64Var(&activityParams.toEpochID, "to-epoch-id", 0, "Last Epoch ID to query for, defaults to the current Epoch ID")
 
 	rootCmd.AddCommand(activityCmd)
 }
@@ -41,15 +41,21 @@ func listActivity(cmd *cobra.Command, _ []string) {
 	}
 	defer client.Close()
 
-	if activityParams.toEpochID == 0 {
-		activityParams.toEpochID, err = client.GetCurrentEpochID()
+	var (
+		fromEpochID = uint64(activityParams.fromEpochID)
+		toEpochID   = uint64(activityParams.toEpochID)
+	)
+
+	if activityParams.toEpochID <= 0 {
+		currentEpochID, err := client.GetCurrentEpochID()
 		if err != nil {
 			log.Fatal(err)
 		}
+		toEpochID += currentEpochID
 	}
 
-	if activityParams.fromEpochID == 0 {
-		activityParams.fromEpochID = activityParams.toEpochID - defaultEpochRange
+	if activityParams.fromEpochID <= 0 {
+		fromEpochID += toEpochID
 	}
 
 	t := table.NewWriter()
@@ -57,7 +63,7 @@ func listActivity(cmd *cobra.Command, _ []string) {
 	t.AppendHeader(table.Row{"Epoch ID", "Role", "Address", "Active", "Blocks"})
 	t.SetAlign([]text.Align{text.AlignRight, text.AlignLeft, text.AlignLeft, text.AlignLeft, text.AlignRight})
 
-	for e := activityParams.fromEpochID; e <= activityParams.toEpochID; e++ {
+	for e := fromEpochID; e <= toEpochID; e++ {
 		activity, err := client.GetActivity(e)
 		if err != nil {
 			log.Fatal(err)

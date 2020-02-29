@@ -25,8 +25,8 @@ var (
 	incentivesParams = struct {
 		validatorAddress string
 		delegatorAddress string
-		fromEpochID      uint64
-		toEpochID        uint64
+		fromEpochID      int64
+		toEpochID        int64
 		filterType       string
 	}{}
 )
@@ -34,8 +34,8 @@ var (
 func init() {
 	incentivesCmd.PersistentFlags().StringVar(&incentivesParams.validatorAddress, "validator-address", "", "Address of the validator by which to filter")
 	incentivesCmd.PersistentFlags().StringVar(&incentivesParams.delegatorAddress, "delegator-address", "", "Address of the delegator by which to filter")
-	incentivesCmd.PersistentFlags().Uint64Var(&incentivesParams.fromEpochID, "from-epoch-id", 0, "Starting Epoch ID to query for, defaults to the last three epochs")
-	incentivesCmd.PersistentFlags().Uint64Var(&incentivesParams.toEpochID, "to-epoch-id", 0, "Last Epoch ID to query for")
+	incentivesCmd.PersistentFlags().Int64Var(&incentivesParams.fromEpochID, "from-epoch-id", defaultEpochRange, "Starting Epoch ID to query for, defaults to the last three epochs before --to-epoch-id")
+	incentivesCmd.PersistentFlags().Int64Var(&incentivesParams.toEpochID, "to-epoch-id", 0, "Last Epoch ID to query for, defaults to the current Epoch ID")
 	incentivesCmd.PersistentFlags().StringVar(&incentivesParams.filterType, "filter-type", "", "Filter by incentive type, either validator or delegator")
 
 	rootCmd.AddCommand(incentivesCmd)
@@ -48,15 +48,21 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 	}
 	defer client.Close()
 
-	if incentivesParams.toEpochID == 0 {
-		incentivesParams.toEpochID, err = client.GetCurrentEpochID()
+	var (
+		fromEpochID = uint64(incentivesParams.fromEpochID)
+		toEpochID   = uint64(incentivesParams.toEpochID)
+	)
+
+	if incentivesParams.toEpochID <= 0 {
+		currentEpochID, err := client.GetCurrentEpochID()
 		if err != nil {
 			log.Fatal(err)
 		}
+		toEpochID += currentEpochID
 	}
 
-	if incentivesParams.fromEpochID == 0 {
-		incentivesParams.fromEpochID = incentivesParams.toEpochID - defaultEpochRange
+	if incentivesParams.fromEpochID <= 0 {
+		fromEpochID += toEpochID
 	}
 
 	sumValidator := big.NewInt(0)
@@ -67,7 +73,7 @@ func listIncentives(cmd *cobra.Command, _ []string) {
 	t.AppendHeader(table.Row{"Epoch ID", "Type", "Address", "Incentive"})
 	t.SetAlign([]text.Align{text.AlignRight, text.AlignLeft, text.AlignLeft, text.AlignRight})
 
-	for e := incentivesParams.fromEpochID; e <= incentivesParams.toEpochID; e++ {
+	for e := fromEpochID; e <= toEpochID; e++ {
 		incentives, err := client.GetIncentives(e)
 		if err != nil {
 			log.Fatal(err)

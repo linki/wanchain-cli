@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	defaultEpochRange = 3
+	defaultEpochRange = -3
 )
 
 var (
