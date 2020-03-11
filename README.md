@@ -177,7 +177,7 @@ $ wanchain-cli --rpc https://mywanwallet.nl/api activity \
 # Releases
 
 You can find find automatically compiled binaries for several operating systems
-on [the releases page](./releases).
+on [the releases page](https://github.com/linki/wanchain-cli/releases).
 
 You can also use an automatically built Docker image:
 
