@@ -107,6 +107,8 @@ func listValidators(cmd *cobra.Command, _ []string) {
 			clientAmount := util.TotalAmountClients(validator.Clients)
 			partnerAmount := util.TotalAmountPartners(validator.Partners)
 
+			stakeOutAmount := util.TotalAmountStakeOuts(validator.Clients)
+
 			t.AppendRows([]table.Row{
 				{"Address", validator.Address.Hex()},
 				{"PubSec256", validator.PubSec256},
@@ -121,6 +123,7 @@ func listValidators(cmd *cobra.Command, _ []string) {
 				{"# Delegators", fmt.Sprintf("%d (%.2f)", len(validator.Clients), util.WeiToEth(clientAmount))},
 				{"# Partners", fmt.Sprintf("%d (%.2f)", len(validator.Partners), util.WeiToEth(partnerAmount))},
 				{"ValidatorAmount", fmt.Sprintf("%.2f (of %.2f)", util.WeiToEth(validatorAmount), util.WeiToEth(totalAmount))},
+				{"PendingStakeOut", util.WeiToEth(stakeOutAmount)},
 				{"StakeWeight", fmt.Sprintf("%.2f%%", util.Weight(validatorAmount, totalAmount))},
 				{"PowerWeight", fmt.Sprintf("%.2f%%", util.Weight(validatorPower, totalPower))},
 				{"MaxFeeRate", fmt.Sprintf("%.2f%%", float64(validator.MaxFeeRate)/100)},

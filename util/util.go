@@ -54,6 +54,16 @@ func TotalAmountPartners(validators []types.Partner) *big.Int {
 	return amount
 }
 
+func TotalAmountStakeOuts(validators []types.Client) *big.Int {
+	amount := big.NewInt(0)
+	for _, validator := range validators {
+		if validator.QuitEpoch > 0 {
+			amount = amount.Add(amount, validator.TotalAmount())
+		}
+	}
+	return amount
+}
+
 func RenderTable(t table.Writer, format string) {
 	switch format {
 	case "csv":
