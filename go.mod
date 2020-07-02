@@ -12,6 +12,6 @@ require (
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/spf13/cobra v0.0.7
-	github.com/stretchr/testify v1.6.0
+	github.com/stretchr/testify v1.6.1
 	go.mongodb.org/mongo-driver v1.1.1 // indirect
 )
