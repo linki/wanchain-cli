@@ -11,6 +11,6 @@ require (
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/spf13/cobra v0.0.7
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	go.mongodb.org/mongo-driver v1.1.1 // indirect
 )
