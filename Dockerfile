@@ -10,7 +10,7 @@ RUN go build -o /bin/wanchain-cli -v \
 RUN /bin/wanchain-cli version
 
 # final image
-FROM alpine:3.13.2
+FROM alpine:3.13.5
 
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /bin/wanchain-cli /bin/wanchain-cli
